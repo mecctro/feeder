@@ -1,0 +1,662 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<script>
+var player = [];
+</script>
+
+<style>
+#camtainer {
+  position: relative;
+  display: inline-block;
+  padding: 0px;
+}
+.cam_desc {
+  background: rgba(0, 0, 0, 0.5);
+  opacity: 1;
+  text-shadow: 0px 0px 0.25em #000;
+}
+
+.panel {
+  width: calc(20% - 12px);
+  margin: 2px;
+  display: inline-block;
+}
+
+.panel-body {
+  padding: 0px;
+}
+
+.panel-footer {
+  height: 101px;
+  overflow: hidden;
+  overflow-y: auto;
+  font-size: .85em;
+}
+
+.panel-footer h6 {
+  font-size: 14px;
+  word-wrap: break-word;
+  background: #333;
+  padding: 15px;
+  margin: -10px -15px 5px -15px;
+}
+
+.aspect-panel {
+  width: 100%;
+  display: block;
+  position: relative;
+}
+
+.aspect-4x3 {
+  padding-top: 75%;
+}
+
+.aspect-16x9 {
+  padding-top: 56.3%;
+}
+
+.aspect-panel .aspect-container {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.container {
+  padding-left: 25%;
+  width: 100%;
+}
+
+.addPlaylist {
+  font-size: 2em;
+  float: right;
+  margin: 5px;
+  background: #333;
+  padding: 1px 2px;
+  border-radius: 5px;
+  text-shadow: 0px 0px 10px #000;
+}
+
+.playlist {
+  width: 23%;
+  height: 100%;
+  float: left;
+  background: #111;
+  margin-right: 2%;
+  top: 0px;
+  left: 0px;
+  padding-top: 51px;
+  position: fixed;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.playlist ul {
+  font-size: 0.75em;
+  list-style: none;
+  padding: 0px;
+  margin-top: 50px;
+  margin-bottom: 0px;
+}
+
+.playlist ul li {
+  border-bottom: 1px solid #333;
+  height:3em;
+  overflow: hidden;
+}
+
+.playlist ul li.active {
+  background: #222;
+}
+
+.playlist ul li a {
+  width: 85%;
+  display: inline-block;
+  padding: 10px;
+}
+
+.playlist div a {
+  font-size: 15px;
+  background: #222;
+  border: 1px solid #333;
+  border-radius: 5px;
+  padding: 4px 6px;
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  margin: -2px;
+}
+
+#player {
+  padding: 0px !important;
+  top: 51px;
+  left: 23%;
+  right: 0px;
+  bottom: 0px;
+  z-index: 3;
+  overflow: hidden;
+}
+
+#player .modal.in .modal-content {
+  height: 100%;
+  border: 0px;
+  border-radius: 0px;
+}
+
+#mediaPlayer {
+  width: 100%;
+  height: 100%;
+}
+
+.modal-backdrop {
+  display: none;
+}
+
+.modal.in .modal-dialog {
+  margin: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+
+
+.video-js .vjs-control-bar {
+  background-color: rgba(20, 25, 20, 0.7);
+}
+
+.video-js .vjs-slider {
+  background-color: rgba(121, 165, 63, 0.5);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+  background-size: 1rem 1rem;
+  animation: progress-bar-stripes 2s linear infinite;
+}
+
+.video-js .vjs-load-progress {
+  background: rgba(140, 159, 115, 0.5);
+}
+
+.video-js .vjs-play-progress {
+  background-color: #bbb;
+}
+
+.video-js .vjs-play-progress:before {
+  color: #bbb;
+  text-shadow: 0px 0px 0.1em #000;
+}
+</style>
+
+<div class="playlist">
+  <div style="padding: 10px;background: #151515;box-shadow: 0px 0px 5px #000;position: fixed;width: 23%;left: 0px;top: 51px;z-index: 1;">
+    <a href="" onclick="play();return false;"><i class="fa fa-play"></i></a>
+    <a href="" onclick="playPrev();return false;"><i class="fa fa-step-backward"></i></a>
+    <a href="" onclick="playNext();return false;"><i class="fa fa-step-forward"></i></a>
+    <a href="" onclick="clearPlaylist();return false;"><i class="fa fa-trash"></i></a>
+  </div>
+  <ul>
+  </ul>
+</div>
+
+<div style="text-align:center;">
+  <ul class="pagination pagination-sm">
+  	<li><a href="{{ .Prev }}">«</a></li>
+    <li {{ if eq .Page 10 }} class="active" {{ end }}><a href="10">10</a></li>
+    <li {{ if eq .Page 9 }} class="active" {{ end }}><a href="9">9</a></li>
+    <li {{ if eq .Page 8 }} class="active" {{ end }}><a href="8">8</a></li>
+    <li {{ if eq .Page 7 }} class="active" {{ end }}><a href="7">7</a></li>
+    <li {{ if eq .Page 6 }} class="active" {{ end }}><a href="6">6</a></li>
+    <li {{ if eq .Page 5 }} class="active" {{ end }}><a href="5">5</a></li>
+    <li {{ if eq .Page 4 }} class="active" {{ end }}><a href="4">4</a></li>
+    <li {{ if eq .Page 3 }} class="active" {{ end }}><a href="3">3</a></li>
+    <li {{ if eq .Page 2 }} class="active" {{ end }}><a href="2">2</a></li>
+  	<li {{ if eq .Page 1 }} class="active" {{ end }}><a href="1">1</a></li>
+  	<li><a href="{{ .Next }}">»</a></li>
+  </ul>
+</div>
+
+<script>
+var playlist = [];
+var current;
+var player;
+
+if (localStorage.getItem("playlist")) {
+  playlist = JSON.parse(localStorage.getItem("playlist"));
+}
+
+$(document).ready(function() {
+  player = videojs('#mediaPlayer');
+  //$('#player .modal-content').append('<a href="" ><i style="font-size:25px" class="fa fa-step-forward"></i></a>');
+
+  $(".playlist ul").on('click', 'a', function() {
+    $(".playlist ul li").removeClass("active");
+    $(this).parent().addClass("active");
+    current = $(this).data("id");
+  });
+
+  updatePlaylist();
+});
+
+function addPlaylist(id, title, description, link, external){
+  //$('*[data-id="'+id+'"]').children('i').removeClass('fa-plus-square');
+  //$('*[data-id="'+id+'"]').children('i').addClass('fa-minus-square');
+
+  /*if (title != null){
+    $('.playlist ul').append('<li><a href="#" data-id="'+id+'" data-title="'+title+'" onclick="showFRAMEPlay(\''+title+'\', \''+description+'\', \''+link+'\', \''+external+'\');return false;">'+title+'</a><button type="button" class="close" style="font-size: 1.5em;padding: .5em;" onclick="removePlaylist(\''+id+'\');return false;">×</button></li>');
+  } else {
+    $('.playlist ul').append('<li><a href="#" data-id="'+id+'" data-title="'+title+'" onclick=\'showFRAMEPlay(\''+title+'\', \''+description+'\', \''+link+'\', \''+external+'\');return false;">'+link+'</a><button type="button" class="close" style="font-size: 1.5em;padding: .5em;" onclick="removePlaylist(\''+id+'\');return false;">×</button></li>');
+  }*/
+  //alert($.inArray(id, playlist));
+  if (playlist.length === 0) {
+    playlist.push([id, title, description, link, external]);
+  } else {
+    var match = 0;
+    playlist.forEach(function(value, index){
+      if (value[0] === id) {
+        match = 1;
+      }
+    });
+    if (!match){
+      playlist.push([id, title, description, link, external]);
+    }
+  }
+
+  updatePlaylist();
+}
+
+function removePlaylist(id){
+  $('.playlist ul *[data-id="'+id+'"]').parent().remove();
+
+  //$('*[data-id="'+id+'"]').children('i').removeClass('fa-minus-square');
+  //$('*[data-id="'+id+'"]').children('i').addClass('fa-plus-square');
+
+  playlist = playlist.filter(function (item) { return item[0] !== id });
+
+  updatePlaylist();
+}
+
+function clearPlaylist(){
+  if ($(".playlist ul li a").length){
+    $('.playlist ul li').remove();
+
+    $('.addPlaylist').children('i').removeClass('fa-minus-square');
+    $('.addPlaylist').children('i').addClass('fa-plus-square');
+
+    playlist = [];
+    localStorage.removeItem("playlist");
+
+    //updatePlaylist();
+  }
+}
+
+function updatePlaylist(){
+  if (playlist !== null) {
+    playlist.forEach(function(value, index){
+      //console.log(index + " : " +value[4]);
+      /*$('.playlist ul li a[data-id="'+value[0]+'"]').each(function(i, obj) {
+        console.log($(obj).data("id"));
+        //console.log(obj);
+      });*/
+
+      /*$('.playlist ul li a').each(function(i, obj) {
+        console.log($(obj).data("id"));
+        //console.log(obj);
+      });*/
+
+      //console.log(value[0]);
+
+      // Check if playlist item exists.
+      if ($('.playlist ul li a[data-id="'+value[0]+'"]').length) {
+        $('.addPlaylist[data-id="'+value[0]+'"]').children('i').removeClass('fa-plus-square');
+        $('.addPlaylist[data-id="'+value[0]+'"]').children('i').addClass('fa-minus-square');
+        //console.log('found');
+      } else {
+        $('.addPlaylist[data-id="'+value[0]+'"]').children('i').removeClass('fa-minus-square');
+        $('.addPlaylist[data-id="'+value[0]+'"]').children('i').addClass('fa-plus-square');
+        //console.log('not found');
+
+        if (value[1] != null){
+          $('.playlist ul').append('<li><a href="#" data-id="'+value[0]+'" data-title="'+value[1]+'" onclick="showFRAMEPlay(\''+value[0]+'\', \''+value[1]+'\', \''+value[2]+'\', \''+value[3]+'\', \''+value[4]+'\');return false;">'+RealUnescape(value[1])+'</a><button type="button" class="close" style="font-size: 1.5em;padding: .5em;" onclick="removePlaylist(\''+value[0]+'\');return false;">×</button></li>');
+        } else {
+          $('.playlist ul').append('<li><a href="#" data-id="'+value[0]+'" data-title="'+value[3]+'" onclick=\'showFRAMEPlay(\''+value[0]+'\', \''+value[3]+'\', \''+value[2]+'\', \''+value[3]+'\', \''+value[4]+'\');return false;">'+RealUnescape(value[4])+'</a><button type="button" class="close" style="font-size: 1.5em;padding: .5em;" onclick="removePlaylist(\''+value[0]+'\');return false;">×</button></li>');
+        }
+      }
+    });
+  } else {
+    playlist = JSON.parse(localStorage.getItem("playlist"));
+  }
+
+  //playlist = JSON.parse(localStorage.getItem("playlist"));
+  // Check localstorage for existing playlist data and assign.
+  var thisPlaylist = JSON.parse(localStorage.getItem("playlist"));
+  var thisPlaylistStorage = localStorage.getItem("playlist");
+
+  //if (thisPlaylist == playlist) {
+    localStorage.setItem("playlist", JSON.stringify(playlist));
+  //}
+}
+
+function playPrev(){
+  $('.playlist ul li a').closest('.active').prev().children('a').click();
+  player.play();
+}
+
+function playNext(){
+  $('.playlist ul li a').closest('.active').next().children('a').click();
+  player.play();
+}
+
+function showFRAMEPlay(feedItemHash, title, description, link, external){
+  addSeen(feedItemHash);
+
+  player.dispose();
+
+  hostname = get_hostname(link);
+  //alert(hostname);
+  //alert(link.substring(0, 6))
+  if (link.substring(0, 6) == "magnet"){
+    $('#player .modal-body .aspect-container').prepend('<video id=\'mediaPlayer\' class=\'video-js\' controls preload=\'auto\' width=\'640\' height=\'480\' data-setup=\'{"techOrder": ["html5", "flash"]}\'><p class=\'vjs-no-js\'></p></video>');
+
+    var client = new WebTorrent()
+
+    client.add(link, function (torrent) {
+      // Torrents can contain many files. Let's use the .mp4 file
+      var file = torrent.files.find(function (file) {
+        return file.name.endsWith('.mp4')
+      })
+
+      // Display the file by adding it to the DOM. Supports video, audio, image, etc. files
+      var opts = {autoplay: false};
+      file.renderTo('#mediaPlayer video', opts);
+
+      // Trigger statistics refresh
+        torrent.on('done', onDone)
+        setInterval(onProgress, 500)
+        onProgress()
+
+        // Statistics
+        function onProgress () {
+          // Peers
+          $('#player .modal-body .video-js .stats span').text(torrent.numPeers)
+
+          // Progress
+          //var percent = Math.round(torrent.progress * 100 * 100) / 100
+          //$progressBar.style.width = percent + '%'
+          //$downloaded.innerHTML = prettyBytes(torrent.downloaded)
+          //$total.innerHTML = prettyBytes(torrent.length)
+
+          // Remaining time
+          //var remaining
+          //if (torrent.done) {
+          //  remaining = 'Done.'
+          //} else {
+          //  remaining = moment.duration(torrent.timeRemaining / 1000, 'seconds').humanize()
+          //  remaining = remaining[0].toUpperCase() + remaining.substring(1) + ' remaining.'
+          //}
+          //$remaining.innerHTML = remaining
+
+          // Speed rates
+          //$downloadSpeed.innerHTML = prettyBytes(torrent.downloadSpeed) + '/s'
+          //$uploadSpeed.innerHTML = prettyBytes(torrent.uploadSpeed) + '/s'
+        }
+        function onDone () {
+          //$body.className += ' is-seed'
+          onProgress()
+        }
+    });
+
+    player = videojs('#mediaPlayer').ready(function(){
+      player = videojs('#mediaPlayer').ready(function(){
+        //player.src({type: 'video/mp4', src: link});
+        player.play();
+      });
+    });
+
+    $('#player .modal-body .video-js').prepend('<div class="stats" style="font-size: 15px;margin-bottom: -15px;display: block;position: absolute;z-index: 10;padding: 5px;"><i class="fa fa-users" style="padding: 5px;background: #000;border-radius: 5px;margin-right: 5px;"></i><span style="color: #395a67;padding: 3px;background: rgba(255, 255, 255, 0.5);border-radius: 5px;">0</span></div>');
+
+  } else if (hostname == "www.dailymotion.com"){
+    $('#player .modal-body .aspect-container').prepend('<video id=\'mediaPlayer\' class=\'video-js\' controls preload=\'auto\' width=\'640\' height=\'480\' data-setup=\'{"techOrder": ["html5", "flash"]}\'><p class=\'vjs-no-js\'></p></video>');
+    player = videojs('#mediaPlayer').ready(function(){
+      player = videojs('#mediaPlayer').ready(function(){
+        player.src({type: 'video/dailymotion', src: link});
+        player.play();
+      });
+      /*var get = "";
+      $.ajax({
+        async: false,
+        'url' : "http://192.168.1.146:6900/proxy?url="+link,
+        'type' : 'GET',
+        'success' : function(data) {
+          get = data;
+        }
+      });
+
+      var regex = /480"},{.*mp4.*(http:.*dailymotion\.com.*\.mp4\?auth=.*)"}]}/g;
+      m = regex.exec(get);
+
+      if (m != null && m[1] != "" && get != ""){
+        m[1] = m[1].replace(/\\/g, '');
+        player.src({type: 'video/mp4', src: m[1]});
+        player.play();
+      } else {
+        player.src({type: 'video/mp4', src: link});
+        player.play();
+      }*/
+    });
+  } else if (hostname == 'www.youtube.com') {
+    $('#player .modal-body .aspect-container').prepend('<video id=\'mediaPlayer\' class=\'video-js\' controls preload=\'auto\' width=\'640\' height=\'480\' data-setup=\'{"techOrder": ["youtube"]}\'><p class=\'vjs-no-js\'></p></video>');
+    player = videojs('#mediaPlayer').ready(function(){
+      player.src({type: 'video/youtube', src: link});
+      player.play();
+    });
+  } else if (hostname == 'www.liveleak.com') {
+    $('#player .modal-body .aspect-container').prepend('<video id=\'mediaPlayer\' class=\'video-js\' controls preload=\'auto\' width=\'640\' height=\'480\' data-setup=\'{"techOrder": ["html5", "flash"]}\'><p class=\'vjs-no-js\'></p></video>');
+    player = videojs('#mediaPlayer').ready(function(){
+      var get = "";
+      $.ajax({
+        async: false,
+        'url' : "http://192.168.1.146:6900/proxy?url="+link,
+        'type' : 'GET',
+        'success' : function(data) {
+          get = data;
+        }
+      });
+
+      var regex = /source src="(.*)" [rd]/g;
+      m = regex.exec(get);
+
+      if (m != null && m[1] != "" && get != ""){
+        player.src({type: 'video/mp4', src: m[1]});
+        player.play();
+      } else {
+        player.src({type: 'video/mp4', src: link});
+        player.play();
+      }
+    });
+  } else if (hostname = 'player.vimeo.com') {
+    $('#player .modal-body .aspect-container').prepend('<video id=\'mediaPlayer\' class=\'video-js\' controls preload=\'auto\' width=\'640\' height=\'480\' data-setup=\'{"techOrder": ["html5", "flash"]}\'><p class=\'vjs-no-js\'></p></video>');
+    player = videojs('#mediaPlayer').ready(function(){
+      var get = "";
+      $.ajax({
+        async: false,
+        'url' : "http://192.168.1.146:6900/proxy?url="+link,
+        'type' : 'GET',
+        'success' : function(data) {
+          get = data;
+        }
+      });
+
+      var regex = /video\/mp4.*(https:\/\/.*\.vimeocdn\.com\/.*\.mp4\?token=.*)","cdn/g;
+      m = regex.exec(get);
+
+      if (m != null && m[1] != "" && get != ""){
+        player.src({type: 'video/mp4', src: m[1]});
+        player.play();
+      } else {
+        player.src({type: 'video/mp4', src: link});
+        player.play();
+      }
+      player.play();
+    });
+  }
+
+  // When videos encounter error or are finished move to next playlist item
+  player.on('error', function(e) {
+    playNext();
+  });
+
+  player.on('ended', function() {
+    playNext();
+  });
+
+  //document.getElementById('mediaFrame').src = link;
+  $('#player .modal-link-external').attr('href', external);
+  $("#player .modal-title").text(RealUnescape(title));
+  $("#player .modal-body p").text(RealUnescape(description));
+  $("#player").modal("show");
+
+  setTimeout(function(){
+    //document.elementFromPoint(400, 200).click();
+    //$('#mediaFrame').click();
+    //$('#mediaFrame').contents().find('.vjs-big-play-button').trigger("click");
+    //alert();
+  }, 2000)
+}
+
+function get_hostname(url) {
+  var m = url.match(/^(https?:\/\/)?((?:[a-z0-9-]+\.)+(?:com|net|org))(?:\/|$)/i);
+  return m ? m[2] : null;
+}
+
+function escape_quote(str){
+  str = str.replace(new RegExp("'", 'g'), "\'");
+  return str.replace(new RegExp('"', 'g'), '\"');
+}
+</script>
+
+<div>
+{{ range $index, $value := .Feeds }}
+<div class="panel panel-default video-panel unseen" data-id="{{ $value.ID }}">
+  <div class="panel-body">
+    <div class="aspect-panel aspect-4x3">
+      <div class="aspect-container video-js" style="background:url('{{ $value.Image.Value }}') no-repeat center;background-size: contain;">
+        <button class="vjs-big-play-button" type="button" data-title="{{ if $value.Title.Value }}{{ $value.Title.Value | Escape }}{{ end }}" onclick='showFRAMEPlay("{{ $value.ID }}", "{{ if $value.Title.Value }}{{ $value.Title.Value | Escape }}{{ end }}", "{{ if $value.Description.Value }}{{ $value.Description.Value | TrimSpace | Escape }}{{ end }}", "{{ $value.Content.Value}}", "{{ $value.Link }}");return false;' aria-live="polite" title="Play Video" aria-disabled="false"><span class="vjs-control-text">Play Video</span></button>
+        <div class="video-type" style="width: 2em;height: 2em;float: left;margin: 5px;padding: 2px;/*box-shadow: 0px 0px 10px #000;background: rgba(0,0,0,0.5);*/">
+          <img src="https://www.google.com/s2/favicons?domain={{ $value.FeedLink }}" style="width: 100%;">
+        </div>
+        <a class="addPlaylist" href="#" data-id="{{ $value.ID }}" data-link="{{ $value.Link }}" onclick='addPlaylist("{{ $value.ID }}", "{{ if $value.Title.Value }}{{ $value.Title.Value | Escape }}{{ end }}", "{{ if $value.Description.Value }}{{ $value.Description.Value | TrimSpace | Escape }}{{ end }}", "{{ $value.Content.Value }}", "{{ $value.Link }}");return false;'>
+          <i class="fa fa-plus-square"></i>
+        </a>
+      </div>
+      <!--<video id='{{ $index }}' class='video-js' controls preload='auto' width='640' height='480' data-setup='{"techOrder": ["youtube", "html5", "mjpeg", "flash"]}'><p class='vjs-no-js'></p></video>-->
+    </div>
+  </div>
+  <div class="panel-footer">
+    {{ if $value.FeedAuthor.Value }}
+      <h6 style="word-wrap: break-word;">{{ $value.FeedAuthor.Value }}</h6>
+    {{ end }}
+    {{ if $value.Title.Value }}
+      <p>{{ $value.Title.Value | Unescape }}</p>
+    {{ end }}
+  </div>
+  <!--<script>
+  $( document ).ready(function() {
+    player[{{ $index }}] = videojs('{{ $index }}');
+    player[{{ $index }}].src({
+      type: 'video/youtube',
+      src: {{ $value.Link }}
+    })
+  });
+</script>-->
+</div>
+{{ end }}
+</div>
+
+<!--<div id="out">
+  {{ range $index, $value := .Feeds }}
+  <div class="item">
+    <div class="title">
+      <h4>
+        <a data-toggle="modal" data-target="#viewer" data-title="{{ $value.Title.Value }}" href="#" onclick="showFRAME('{{ $value.Link }}');return false;">-->
+        <!--<a data-toggle="modal" data-target="#viewer" href="#" onclick="showFRAME('http://127.0.0.1:6900/proxy?url={{ $value.Link }}');return false;">-->
+        <!--<a target="_blank" href="http://127.0.0.1:6900/proxy?url={{ $value.Link }}">-->
+          <!--<div style="display:inline-block;width:95%;float:right;">
+            {{ if $value.Title.Value }}
+              {{ $value.Title.Value | Unescape }}
+            {{ end }}
+          </div>
+          <div style="width:5%;display:inline-block;">
+            <div class="icon" style="background:#999;background:url(https://www.google.com/s2/favicons?domain={{ $value.Link }});background-size:cover;">
+          </div>
+        </a>
+      </h4>
+      <p>
+        <strong>{{ $value.Published }}</strong>
+      </p>
+    </div>
+    <br>
+    {{ if $value.Image.Value }}
+    <img class="media" src="{{ $value.Image.Value }}"/>
+    {{ end }}
+
+    {{ if $value.Description.Value }}
+    <p>{{ $value.Description.Value | Unescape }}</p>
+    {{ end }}
+
+    {{ if $value.Content.Value }}
+    <p>{{ $value.Content.Value | Unescape }}</p>
+    {{ end }}
+
+  </div>
+  {{ end }}
+</div>-->
+
+<div style="text-align:center;">
+  <ul class="pagination pagination-sm">
+  	<li><a href="{{ .Prev }}">«</a></li>
+    <li {{ if eq .Page 10 }} class="active" {{ end }}><a href="10">10</a></li>
+    <li {{ if eq .Page 9 }} class="active" {{ end }}><a href="9">9</a></li>
+    <li {{ if eq .Page 8 }} class="active" {{ end }}><a href="8">8</a></li>
+    <li {{ if eq .Page 7 }} class="active" {{ end }}><a href="7">7</a></li>
+    <li {{ if eq .Page 6 }} class="active" {{ end }}><a href="6">6</a></li>
+    <li {{ if eq .Page 5 }} class="active" {{ end }}><a href="5">5</a></li>
+    <li {{ if eq .Page 4 }} class="active" {{ end }}><a href="4">4</a></li>
+    <li {{ if eq .Page 3 }} class="active" {{ end }}><a href="3">3</a></li>
+    <li {{ if eq .Page 2 }} class="active" {{ end }}><a href="2">2</a></li>
+  	<li {{ if eq .Page 1 }} class="active" {{ end }}><a href="1">1</a></li>
+  	<li><a href="{{ .Next }}">»</a></li>
+  </ul>
+</div>
+
+<div id="player" class="modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <a class="modal-link-external" href="#" target="_blank">
+          <i class="fa fa-external-link-square"></i>
+        </a>
+        <h6 class="modal-title">
+          Player
+        </h6>
+      </div>
+      <div class="modal-body" style="height: calc(100% - 51px);overflow: auto;">
+          <div class="aspect-panel aspect-16x9">
+            <div class="aspect-container">
+              <video id='mediaPlayer' class='aspect-container aspect-16x9 video-js' controls preload='auto' width='640' height='480' data-setup='{"techOrder": ["html5", "mjpeg", "flash"]}'><p class='vjs-no-js'></p></video>
+            </div>
+          </div>
+          <p style="padding: 1em;"></p>
+          <!--<iframe id="mediaFrame" src="" frameborder="0"></iframe>-->
+          <!--<iframe id="mediaFrame" src="" frameborder="0" sandbox=""></iframe>-->
+          <!--<iframe id="mediaComments" src="" frameborder="0" sandbox=""></iframe>-->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ template "assets\\templates\\footer.html" . }}

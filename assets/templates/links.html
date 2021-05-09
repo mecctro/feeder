@@ -1,0 +1,26 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<style>
+.toTop {
+  display:none;
+}
+</style>
+
+<div class="col-lg-3 col-md-5 col-sm-6" style="overflow:auto;padding:0px; left: 0px;position:absolute;top:50px;bottom:0px; /*height:calc(100% - 50px - 2em);*/">
+  <div class="list-group table-of-contents" style="margin:0px;">
+    {{ range $index, $value := .Links }}
+    <a class="list-group-item" href="{{ $value.URL }}" onclick="showFRAME(this.href, this.href, this.text);return false;">
+      <img src="https://www.google.com/s2/favicons?domain={{ $value.URL }}">
+      {{ $value.Title }}
+    </a>
+    {{ end }}
+  </div>
+</div>
+
+<div class="col-lg-9 col-md-7 col-sm-6" style="position:absolute;top:50px;right:0px;bottom:0px;padding:0;">
+  <div id="out">
+    <iframe id="mediaFrame" src="" frameborder="0" style="height:100%;"></iframe>
+  </div>
+</div>
+
+{{ template "assets\\templates\\footer.html" . }}

@@ -1,0 +1,206 @@
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<script src="/static/js/bootstrap-select.min.js"></script>
+
+<script src="/static/js/echo.min.js" crossorigin="anonymous"></script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js" integrity="sha256-1hjUhpc44NwiNg8OwMu2QzJXhD8kcj+sJA3aCQZoUjg=" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js" integrity="sha256-5YmaxAwMjIpMrVlK84Y/+NjCpKnFYa8bWWBbUHSBGfU=" crossorigin="anonymous"></script>
+
+<script src="https://cdn.jsdelivr.net/webtorrent/latest/webtorrent.min.js"></script>
+
+
+<script>
+var cors_proxy = "http://cors-anywhere.herokuapp.com/";
+//var cors_proxy = "https://cors.now.sh/";
+
+//var players = [];
+
+// 511 PA related
+function get_auth_sign() {
+  var result = ""
+  $.ajax({
+      url: cors_proxy + "http://www.511pa.com/wowzKey.aspx",
+      async: false,
+      success:function(data) {
+        result = data;
+      }
+   });
+
+   return result;
+}
+
+function showFRAME(feedItemHash, src, link){
+  addSeen(feedItemHash);
+
+  document.getElementById('mediaFrame').src = src;
+  $('#viewer .modal-link-external').attr('href', link);
+  //document.getElementById('mediaComments').src = "http://127.0.0.1:6900/comments/0/?ur="+str;
+}
+
+var seen = [];
+if (localStorage.getItem("seen")) {
+  seen = JSON.parse(localStorage.getItem("seen"));
+}
+
+function addSeen(feedItemHash) {
+    if (seen.length === 0) {
+      seen.push(feedItemHash);
+    } else {
+      var match = 0;
+      seen.forEach(function(value, index){
+        if (value[0] === feedItemHash) {
+          match = 1;
+        }
+      });
+      if (!match){
+        seen.push(feedItemHash);
+      }
+    }
+
+  localStorage.setItem("seen", JSON.stringify(seen));
+  //localStorage.removeItem("seen");
+}
+
+/*function addSeen() {
+  $('.unseen').each(function() {
+    var feedItemHash = $(this).data("id");
+
+    if (seen.length === 0) {
+      seen.push(feedItemHash);
+    } else {
+      var match = 0;
+      seen.forEach(function(value, index){
+        if (value[0] === feedItemHash) {
+          match = 1;
+        }
+      });
+      if (!match){
+        seen.push(feedItemHash);
+      }
+    }
+
+    //seen.push($(this).data("id"));
+    //console.log($(this).data("id"));
+    //seen = seen.filter(function (item) { return item[0] !== $(this).data("id") });
+  });
+
+  localStorage.setItem("seen", JSON.stringify(seen));
+  //localStorage.removeItem("seen");
+}*/
+
+function showSeen(){
+  seen.forEach(function(value, index){
+    $('*[data-id="'+value+'"]').removeClass('unseen');
+    $('*[data-id="'+value+'"]').addClass('seen');
+    //console.log(value);
+  });
+}
+
+$(document).ready(function() {
+  // Seen items
+  //seen.push([id, feeditemhash]);
+  //localStorage.setItem("seen", JSON.stringify(seen));
+  showSeen();
+  //addSeen("");
+
+  $('#viewer').on('show.bs.modal', function(e) {
+    var title = $(e.relatedTarget).data('title');
+    var link = $(e.relatedTarget).data('link');
+    $('#viewer .modal-title').html(title);
+
+    //AdjustIFrame('mediaFrame');
+    //$('#viewer .modal-body div').height($('.mediaFrame').scrollbarWidth())
+  });
+});
+
+// Modal close with esc-key.
+$(document).keyup(function(ev){
+    if(ev.keyCode == 27)
+        $("#viewer").modal('toggle');
+});
+
+echo.init({
+  offset: 100,
+  throttle: 250,
+  unload: false/*,
+  callback: function (element, op) {
+    console.log(element, 'has been', op + 'ed')
+  }*/
+});
+
+
+(function($,undefined,width){
+  '$:nomunge'; // Used by YUI compressor.
+
+  $.scrollbarWidth = function() {
+    var parent,
+      child;
+
+    if ( width === undefined ) {
+      parent = $('<div style="width:50px;height:50px;overflow:auto"><div/></div>').appendTo('body');
+      child = parent.children();
+      width = child.innerWidth() - child.height( 99 ).innerWidth();
+      parent.remove();
+    }
+
+    return width;
+  };
+
+})(jQuery);
+
+function AdjustIFrame(id) {
+  var frame = document.getElementById(id);
+  var maxW = frame.scrollWidth;
+  var minW = maxW;
+  var FrameH = 100; //IFrame starting height
+  frame.style.height = FrameH + "px"
+
+  while (minW == maxW) {
+    FrameH = FrameH + 100; //Increment
+    frame.style.height = FrameH + "px";
+    minW = frame.scrollWidth;
+  }
+}
+
+function RealUnescape(data){
+  var replace = {"\\": "\\\\", "'": `\'`, "\\0": "\\\\0", "\n": "\\n", "\r": "\\r", '"': '\"', "\x1a": "\\Z"};
+
+  for (var k in replace){
+    if (replace.hasOwnProperty(k)) {
+      data = data.replace(k, replace[k]);
+    }
+  }
+
+	return data;
+}
+</script>
+
+<!-- Text-To-Speech -->
+<script>
+  function TTS(text) {
+    var msg = new SpeechSynthesisUtterance(text);
+    //msg.voice = voices[10]; // Note: some voices don't support altering params
+    //msg.voiceURI = 'native';
+    msg.volume = 1; // 0 to 1
+    msg.rate = 0.75; // 0.1 to 10
+    msg.pitch = 1; //0 to 2
+    //msg.text = 'Hello World';
+    //msg.lang = 'en-US';
+
+    window.speechSynthesis.speak(msg);
+  }
+</script>
+
+<!-- VideoJS -->
+<script src="http://vjs.zencdn.net/5.17.0/video.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-hls/5.3.3/videojs-contrib-hls.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-youtube/2.3.2/Youtube.min.js"></script>
+<script src="/static/js/videojs-mjpeg.js"></script>
+<!--<script src="https://cdn.rawgit.com/videojs/videojs-vimeo/272dd97f/dist/videojs-vimeo.min.js"></script>
+<script src="https://cdn.rawgit.com/benjipott/video.js-dailymotion/5159c1f0/dist-test/videojs-dailymotion.js"></script>-->

@@ -1,0 +1,428 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.bundle.min.js" integrity="sha256-N4u5BjTLNwmGul6RgLoESPNqDFVUibVuOYhP4gJgrew=" crossorigin="anonymous"></script>
+
+
+<style>
+.toTop {
+  display:none;
+}
+
+#myChart {
+  width: 100% !important;
+  height: 100% !important;
+}
+</style>
+
+<div style="height:calc(100% - 120px);width:75%;position:absolute;left:0;top:60px;bottom:0;right:0;border:0px;">
+  <canvas id="myChart" width="100%" height="100%"></canvas>
+</div>
+<div style="position:absolute;width:25%;top:50px;height:calc(100%-120px);right:0px;overflow:hidden;">
+  <div class="form-horizontal">
+    <fieldset>
+      <legend>Period</legend>
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <form method="get" action="/exchange" style="display:inline-block;">
+            <input type="hidden" name="days" value="1"/>
+          	<button class="btn btn-default btn-xs">1 Day</button>
+          </form>
+          <form method="get" action="/exchange" style="display:inline-block;">
+            <input type="hidden" name="days" value="7"/>
+            <button class="btn btn-default btn-xs">7 Day</button>
+          </form>
+          <form method="get" action="/exchange" style="display:inline-block;">
+            <input type="hidden" name="days" value="15"/>
+            <button class="btn btn-default btn-xs">15 Day</button>
+          </form>
+          <form method="get" action="/exchange" style="display:inline-block;">
+            <input type="hidden" name="days" value="30"/>
+            <button class="btn btn-default btn-xs">30 Day</button>
+          </form>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <table class="table table-striped table-hover ">
+    <thead>
+      <tr style="background-color:#86A541;">
+        <th>Crypto</th>
+        <th>Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Bitcoin</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            {{ ($value.Rates.BTC | DivideRound 1) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+      <tr>
+        <td>Ethereum</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            {{ ($value.Rates.ETH | DivideRound 1) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+    </tbody>
+
+    <thead>
+      <tr style="background-color:#86A541;">
+        <th>Currency</th>
+        <th>Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Swiss Franc</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            {{ ($value.Rates.CHF | DivideRound 1) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+    </tbody>
+
+    <thead>
+      <tr style="background-color:#86A541;">
+        <th>Physical</th>
+        <th>Rate</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Silver</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            (oz) {{ ($value.Rates.XAG | DivideRound 1) }}
+            <br>
+            (gr) {{ ($value.Rates.XAG | DivideRound 1 | ToGramsRound) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+      <tr>
+        <td>Gold</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            (oz) {{ ($value.Rates.XAU | DivideRound 1) }}
+            <br>
+            (gr) {{ ($value.Rates.XAU | DivideRound 1 | ToGramsRound) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+      <tr>
+        <td>Platinum</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            (oz) {{ ($value.Rates.XPT | DivideRound 1) }}
+            <br>
+            (gr) {{ ($value.Rates.XPT | DivideRound 1 | ToGramsRound) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+      <tr>
+        <td>Pallidium</td>
+        <td>
+          {{ range $index, $value := .Exchanges }}
+            {{ if Last $index $.Exchanges }}
+            (oz) {{ ($value.Rates.XPD | DivideRound 1) }}
+            <br>
+            (gr) {{ ($value.Rates.XPD | DivideRound 1 | ToGramsRound) }}
+            {{ end }}
+          {{ end }}
+        </td>
+      </tr>
+
+    </tbody>
+  </table>
+</div>
+
+
+<script>
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function getRandomColor() {
+  var r = getRandomInt(0, 255);
+  var g = getRandomInt(0, 255);
+  var b = getRandomInt(0, 255);
+
+  var color = [r,g,b];
+
+  return color;
+}
+
+function getRandomColors(count) {
+  var colors = [];
+  var color = '';
+
+  for (i = 0; i < count; i++) {
+    color = getRandomColor();
+    colors[i] = 'rgba('+color[0]+', '+color[1]+', '+color[2]+', 0.5)';
+  }
+
+  return colors;
+}
+
+var randomColors = getRandomColors(20);
+
+var ctx = document.getElementById("myChart").getContext('2d');
+var myChart = new Chart(ctx, {
+    type: 'line',
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+    },
+    data: {
+        /*labels: [
+          {{ range $index, $value := .Exchanges }}
+            {{ $value.Timestamp | UnixTimeReadable }},
+          {{ end }}
+        ],*/
+        datasets: [
+        {
+          label: "Bitcoin",
+          backgroundColor: randomColors[0],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.BTC | Divide 1) }},
+            },
+            {{ end }}
+          ]
+        },
+        {
+          label: "Ethereum",
+          backgroundColor: randomColors[1],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.ETH | Divide 1) }},
+            },
+            {{ end }}
+          ]
+        },
+        {
+          label: "Silver (ozt)",
+          backgroundColor: randomColors[2],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.XAG | Divide 1) }},
+            },
+            {{ end }}
+          ]
+        },
+        {
+          label: "Gold (ozt)",
+          backgroundColor: randomColors[3],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.XAU | Divide 1) }},
+            },
+            {{ end }}
+          ]
+        },
+        {
+          label: "Platinum  (ozt)",
+          backgroundColor: randomColors[4],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.XPT | Divide 1) }},
+            },
+            {{ end }}
+          ]
+        },
+        {
+          label: "Pallidium (ozt)",
+          backgroundColor: randomColors[5],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Exchanges }}
+            {
+              t: {{ ($value.Timestamp) }},
+              y: {{ ($value.Rates.XPD | Divide 1) }},
+            },
+            {{ end }}
+          ],
+        },
+        {
+          label: "Copper (lb)",
+          backgroundColor: randomColors[6],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Copper }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Copper | Multiply 0.000453592) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Crude (barrel)",
+          backgroundColor: randomColors[7],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Crude }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Crude) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Lead (lb)",
+          backgroundColor: randomColors[8],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Lead }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Lead | Multiply 0.000453592) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Nickel (lb)",
+          backgroundColor: randomColors[9],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Nickel }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Nickel | Multiply 0.000453592) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Iridium (ozt)",
+          backgroundColor: randomColors[10],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Iridium }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Iridium) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Rhodium (ozt)",
+          backgroundColor: randomColors[11],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Rhodium }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Rhodium) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Ruthenium (ozt)",
+          backgroundColor: randomColors[12],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Ruthenium }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Ruthenium) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Tin (lb)",
+          backgroundColor: randomColors[13],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Tin }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Tin | Multiply 0.000453592) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        },
+        {
+          label: "Zinc (lb)",
+          backgroundColor: randomColors[14],
+          lineTension: 0,
+          data: [
+            {{ range $index, $value := .Commodities }}
+              {{ if $value.Zinc }}
+              {
+                t: {{ ($value.Timestamp) }},
+                y: {{ ($value.Zinc | Multiply 0.000453592) }},
+              },
+              {{ end }}
+            {{ end }}
+          ]
+        }
+      ]
+    },
+    options: {
+        scales: {
+          yAxes: [{
+            gridLines: { show: true, color: "gray", }
+          }],
+          xAxes: [{
+            type: 'time',
+            gridLines: { show: true, color: "gray", }
+          }]
+        }
+    }
+});
+</script>
+
+{{ template "assets\\templates\\footer.html" . }}

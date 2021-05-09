@@ -1,0 +1,93 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<div style="text-align:center;">
+  <ul class="pagination pagination-sm">
+  	<li><a href="{{ .Prev }}">«</a></li>
+    <li {{ if eq .Page 10 }} class="active" {{ end }}><a href="10">10</a></li>
+    <li {{ if eq .Page 9 }} class="active" {{ end }}><a href="9">9</a></li>
+    <li {{ if eq .Page 8 }} class="active" {{ end }}><a href="8">8</a></li>
+    <li {{ if eq .Page 7 }} class="active" {{ end }}><a href="7">7</a></li>
+    <li {{ if eq .Page 6 }} class="active" {{ end }}><a href="6">6</a></li>
+    <li {{ if eq .Page 5 }} class="active" {{ end }}><a href="5">5</a></li>
+    <li {{ if eq .Page 4 }} class="active" {{ end }}><a href="4">4</a></li>
+    <li {{ if eq .Page 3 }} class="active" {{ end }}><a href="3">3</a></li>
+    <li {{ if eq .Page 2 }} class="active" {{ end }}><a href="2">2</a></li>
+  	<li {{ if eq .Page 1 }} class="active" {{ end }}><a href="1">1</a></li>
+  	<li><a href="{{ .Next }}">»</a></li>
+  </ul>
+</div>
+
+<div id="out">
+  {{ range $index, $value := .Feeds }}
+  <div class="item unseen" data-id="{{ $value.ID }}">
+    <div class="title">
+      <h5>
+        <div style="display:inline-block;width:calc(100% - 35px);float:right;font-size:.85em;">
+          <a data-toggle="modal" data-target="#viewer" data-title="{{ $value.Title.Value }}" href="#" onclick="showFRAME('{{ $value.ID }}', '{{ $value.Link }}', '{{ $value.Link }}');return false;">
+            <!--<a data-toggle="modal" data-target="#viewer" href="#" onclick="showFRAME('http://127.0.0.1:6900/proxy?url={{ $value.Link }}');return false;">-->
+            <!--<a target="_blank" href="http://127.0.0.1:6900/proxy?url={{ $value.Link }}">-->
+            {{ if $value.Title.Value }}
+            {{ $value.Title.Value | Unescape }}
+            {{ end }}
+            {{ if not $value.Title.Value }}
+            {{ $value.Link | Unescape }}
+            {{ end }}
+          </a>
+        </div>
+        <div style="width:30px;">
+          <div class="icon" style="background:#999;background:url(https://www.google.com/s2/favicons?domain={{ $value.Link }});background-size:cover;">
+        </div>
+      </h5>
+      {{ if $value.Content.Value }}
+      <div style="float: left;">
+        <a href="#" onclick="TTS({{ $value.Content.Value | Unescape }});return false;">
+    	     <i class="fa fa-volume-up fa-fw"></i>
+        </a>
+      </div>
+      {{ end }}
+      {{ if $value.Description.Value }}
+      <div style="float: left;">
+        <a href="#" onclick="TTS({{ $value.Description.Value | Unescape }});return false;">
+    	     <i class="fa fa-volume-up fa-fw"></i>
+        </a>
+      </div>
+      {{ end }}
+      <p>
+        <strong><small>{{ $value.Published }}</small></strong>
+      </p>
+    </div>
+    <br>
+    {{ if $value.Image.Value }}
+    <img class="media" src="{{ $value.Image.Value }}"/>
+    {{ end }}
+
+    {{ if $value.Description.Value }}
+    <p>{{ $value.Description.Value | Unescape }}</p>
+    {{ end }}
+
+    {{ if $value.Content.Value }}
+    <p>{{ $value.Content.Value | Unescape }}</p>
+    {{ end }}
+
+  </div>
+  {{ end }}
+</div>
+
+<div style="text-align:center;">
+  <ul class="pagination pagination-sm">
+  	<li><a href="{{ .Prev }}">«</a></li>
+    <li {{ if eq .Page 10 }} class="active" {{ end }}><a href="10">10</a></li>
+    <li {{ if eq .Page 9 }} class="active" {{ end }}><a href="9">9</a></li>
+    <li {{ if eq .Page 8 }} class="active" {{ end }}><a href="8">8</a></li>
+    <li {{ if eq .Page 7 }} class="active" {{ end }}><a href="7">7</a></li>
+    <li {{ if eq .Page 6 }} class="active" {{ end }}><a href="6">6</a></li>
+    <li {{ if eq .Page 5 }} class="active" {{ end }}><a href="5">5</a></li>
+    <li {{ if eq .Page 4 }} class="active" {{ end }}><a href="4">4</a></li>
+    <li {{ if eq .Page 3 }} class="active" {{ end }}><a href="3">3</a></li>
+    <li {{ if eq .Page 2 }} class="active" {{ end }}><a href="2">2</a></li>
+  	<li {{ if eq .Page 1 }} class="active" {{ end }}><a href="1">1</a></li>
+  	<li><a href="{{ .Next }}">»</a></li>
+  </ul>
+</div>
+
+{{ template "assets\\templates\\footer.html" . }}

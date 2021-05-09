@@ -1,0 +1,60 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<style>
+.toTop {
+  display:none;
+}
+</style>
+
+<script>
+var player = [];
+</script>
+
+<div id='camtainer'>
+{{ range $index, $value := .Streams }}
+<div class='cam'>
+<div class='cam_desc'>{{ $value.Desc }}</div>
+<video id='{{ $value.Name }}' class='video-js' muted controls preload='auto' width='640' height='480' data-setup='{"techOrder": ["html5", "mjpeg", "flash"]}'><p class='vjs-no-js'></p></video>
+</div>
+
+<script>
+player[{{ $value.ID }}] = videojs('{{ $value.Name }}');
+var stream = "{{ $value.Proto }}://{{ $value.Domain }}{{ $value.URL }}{{ $value.Name }}{{ $value.Params }}";
+
+{{ if eq $value.HostID 3 }}
+stream = cors_proxy + stream + get_auth_sign();
+{{ end }}
+
+player[{{ $value.ID }}].src({
+  type: '{{ $value.Head }}',
+  src: stream,
+  rate: {{ $value.Interval }}
+})
+
+player[{{ $value.ID }}].skippy();
+player[{{ $value.ID }}].play();
+
+
+// Prevents fault on network error, and forced stream cancellation.
+// Also an easy timer for periodic auth key renewal.
+player[{{ $value.ID }}].on('error', function(event) {
+  if (player[{{ $value.ID }}].error().code === 2) {
+    // Clear console errors (clogs console, needs hook)
+    console.clear()
+
+    // Reset player state, attach source, play.
+    player[{{ $value.ID }}].error(null);
+    player[{{ $value.ID }}].reset();
+    player[{{ $value.ID }}].src({
+      type: 'application/x-mpegURL',
+      src: stream
+    });
+    //player[{{ $value.ID }}].skippy();
+    player[{{ $value.ID }}].play();
+    return;
+}});
+</script>
+{{ end }}
+</div>
+
+{{ template "assets\\templates\\footer.html" . }}

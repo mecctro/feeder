@@ -1,0 +1,44 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<style>
+td img {
+  height: 18px;
+}
+</style>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Type</th>
+      <th scope="col">Image</th>
+      <th scope="col">Title</th>
+      <th scope="col">Updated</th>
+      <!--<th scope="col">Details</th>
+      <th scope="col">URL</th>-->
+    </tr>
+  </thead>
+  <tbody>
+    {{ range $index, $value := .Feeds }}
+    <tr>
+      <td></td>
+      <td>
+        <img src="https://www.google.com/s2/favicons?domain={{ $value.FeedLink }}" />
+      </td>
+      <th scope="row">
+        {{ if $value.Title.Value }}<a target="_blank" href="{{ $value.FeedLink }}"><i class="fa fa-external-link-square"></i></a>&nbsp;<a href="video/{{ $value.ID }}/1">{{ $value.Title.Value | Unescape }}</a>{{ end }}
+      </th>
+      <td>{{ $value.Updated }}</td>
+      <!--<td>
+        <small>
+        {{ if $value.Description.Value }}
+        {{ $value.Description.Value | Unescape }}
+        {{ end }}
+        </small>
+      </td>
+      <td>{{ $value.FeedLink }}</td>-->
+    </tr>
+    {{ end }}
+  </tbody>
+</table>
+
+{{ template "assets\\templates\\footer.html" . }}

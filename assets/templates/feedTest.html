@@ -1,0 +1,58 @@
+{{ template "assets\\templates\\header.html" . }}
+
+<style>
+#code {
+  width: 100%;
+  border: 0px;
+  height: calc(100% - 340px);
+  border-radius: 5px;
+  padding: 15px;
+}
+</style>
+
+<div id="out">
+  <div class="well bs-componant">
+    <form class="form-horizontal" onsubmit="return false;">
+      <fieldset>
+        <legend>Feed Input</legend>
+        <div class="form-group">
+          <label for="url" class="col-lg-2 control-label">URL</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="inputURL" placeholder="URL">
+          </div>
+        </div>
+        <div class="col-lg-10 col-lg-offset-2">
+          <button id="submitInput" type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <pre id="code" class="html"></pre>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.11.0/styles/androidstudio.min.css" />
+<script>hljs.initHighlightingOnLoad();</script>
+
+<script>
+$( document ).ready(function() {
+  $("#submitInput").click(function(){
+    $.ajax({
+      url: "http://192.168.1.146:6900/proxy?url=" + $("#inputURL").val(),
+      beforeSend: function( xhr ) {
+        xhr.overrideMimeType("text/plain; charset=x-user-defined");
+      }
+    })
+    .done(function(data, status){
+      //alert("http://127.0.0.1:6900/proxy?url=" + $("#inputURL").val())
+      //alert("Data: " + data + "\nStatus: " + status);
+      $("#code").text("Status: " + status + "\n" + data);
+      $("#code").each(function(i, block) {
+        hljs.highlightBlock(block);
+      });
+    });
+  });
+});
+</script>
+
+{{ template "assets\\templates\\footer.html" . }}

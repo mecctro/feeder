@@ -1,0 +1,214 @@
+<html>
+  <head>
+    <title>Feeder : {{ .Title }}</title>
+
+    {{ template "assets\\templates\\styles.html" . }}
+    {{ template "assets\\templates\\scripts.html" . }}
+  </head>
+  <body>
+    <h1 id="top"></h1>
+    <div id="header" class="navbar navbar-default navbar-static-top" role="navigation">
+      <div class="container-fluid">
+        <div class="navbar-header"><button class="navbar-toggle" type="button" data-toggle="collapse" data-target=".navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+          <a class="navbar-brand" href="/">
+            <i class="fa fa-wifi" style="
+                margin-right: 10px;
+                filter: FlipV;
+                transform: scaleY(-1);
+                color: #d9e8b7;
+                background: #333;
+                border-radius: 5px;
+                width: 40px;
+                text-align: center;
+                text-shadow: 0px 0px 1px #000;
+                box-shadow: 0px 0px 10px #000;
+                font-size: 16px;
+                padding: 2px;
+            "></i>
+            Feeder
+          </a>
+        </div>
+        <div class="navbar-collapse collapse">
+
+          <ul class="nav navbar-nav">
+
+            <li>
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                <span class="caret"></span>
+                <span>Acccounts</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                  <li>
+                    <a href="/email">Email</a>
+                  </li>
+                  <li>
+                    <a href="/social">Social</a>
+                  </li>
+              </ul>
+            </li>
+
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                <span class="caret"></span>
+                <span>Feeds</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-left" role="menu">
+
+                  <li>
+                    <a href="/feed/0/1">Generic Feed</a>
+                  </li>
+                  <li>
+                    <a href="/feedlist">Generic List</a>
+                  </li>
+
+                  <li class="divider"></li>
+
+                  <li>
+                    <a href="/forum/0/1">Forum Feed</a>
+                  </li>
+                  <li>
+                    <a href="/forumlist">Forum List</a>
+                  </li>
+
+                  <li class="divider"></li>
+
+                  <li>
+                    <a href="/video/0/1">Video Feed</a>
+                  </li>
+                  <li>
+                    <a href="/videolist">Video List</a>
+                  </li>
+
+              </ul>
+            </li>
+
+            <li>
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                <span class="caret"></span>
+                <span>Data</span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-left" role="menu">
+                <li>
+                  <a href="/exchange">Exchange Rates</a>
+                </li>
+                <li>
+                  <a href="/links">Links</a>
+                </li>
+                <li>
+                  <a href="/storage">Storage</a>
+                </li>
+              </ul>
+            </li>
+
+            <li>
+              <a href="/streams">
+                <span>Streams</span>
+              </a>
+            </li>
+
+          </ul>
+
+          <!--
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="/bootswatch/?theme=2">Bootswatch</a></li>
+                    <li><a href="/bootlint/?theme=2">Bootlint</a></li>
+                    <li><a href="/legacy/?theme=2">Legacy</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="/integrations/?theme=2">Integrations</a></li>
+                    <li class="dropdown"><a class="dropdown-toggle" href="#" data-toggle="dropdown">Resources&nbsp;<span class="caret"></span></a>
+                        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                            <li><a href="https://github.com/twbs/bootlint" onclick="_gaq.push(['_trackEvent', 'Navigation', 'Resources', 'Bootlint']);">Bootlint</a></li>
+                            <li><a href="https://glyphicons.com/" onclick="_gaq.push(['_trackEvent', 'Navigation', 'Resources', 'Glyphicons']);">Glyphicons</a></li>
+                        </ul>
+                    </li>
+                    <li><a data-toggle="modal" data-target="#myModal"><i class="fa fa-cog fa-fw"></i></a></li>
+                </ul>
+          -->
+          <ul class="nav navbar-nav navbar-right">
+
+            <li>
+              <form method="get" action="/search" class="navbar-form navbar-left" role="search">
+                <div class="form-group">
+                  <input name="q" type="text" class="form-control" placeholder="Search">
+                </div>
+              </form>
+            </li>
+
+            <li class="dropdown">
+              <a class="dropdown-toggle" href="#" data-toggle="dropdown">
+                <i class="fa fa-cog fa-fw"></i>
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-right" role="menu">
+                  <li>
+                    <a data-toggle="modal" data-target="#addfeed">Add Feed</a>
+                  </li>
+                  <li>
+                    <a href="/feedtest">Test Feed</a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                    <a data-toggle="modal" data-target="#addlink">Add Link</a>
+                  </li>
+                  <li class="divider"></li>
+                  <li>
+                    <a href="/settings">Settings</a>
+                  </li>
+                </ul>
+            </li>
+
+          </ul>
+
+          <!--<form method="get" action="/search" class="navbar-form navbar-left" role="search" style="width:100%;">
+            <div class="form-group" style="width:80%;">
+              <input name="q" type="text" class="form-control" placeholder="Search" style="width:100%;">
+            </div>
+            <div class="input-group date" id="datetimesearch" style="width:19%;">
+              <input name="date" type="text" class="form-control" placeholder="MM/DD/YYYY" style="width:100%;">
+              <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+            </div>
+          </form>-->
+          <script>
+          $(document).ready(function(){
+            $('#datetimesearch').datetimepicker({
+                viewMode: 'days',
+                format: 'MM/DD/YYYY'
+            });
+
+            var q = urldecode(getUrlVars()["q"]);
+
+            if (q != "undefined") {
+              $("input[name*='q']").val(q);
+            }
+          });
+
+          function urldecode(str) {
+             return decodeURIComponent((str+'').replace(/\+/g, '%20'));
+          }
+
+          function getUrlVars()
+          {
+              var vars = [], hash;
+              var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+              for(var i = 0; i < hashes.length; i++)
+              {
+                  hash = hashes[i].split('=');
+                  vars.push(hash[0]);
+                  vars[hash[0]] = hash[1];
+              }
+              return vars;
+          }
+          </script>
+
+        </div>
+      </div>
+    </div>
+    <div class="container">
